@@ -26,7 +26,7 @@ async function bootstrap() {
     .setDescription('API de marketplace de perfis')
     .setVersion('1.0')
     .addBearerAuth()
-    .build();
+    .build();   
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

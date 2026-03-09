@@ -12,7 +12,7 @@ import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 export class SubscriptionsService {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async create(userId: number, dto: CreateSubscriptionDto) {
+  async create(userId: string, dto: CreateSubscriptionDto) {
     const profile = await this.drizzle.db.query.profiles.findFirst({
       where: eq(profiles.id, dto.profile_id),
     });
@@ -47,7 +47,7 @@ export class SubscriptionsService {
     return subscription;
   }
 
-  async mine(userId: number) {
+  async mine(userId: string) {
     const myProfiles = await this.drizzle.db.query.profiles.findMany({
       where: eq(profiles.userId, userId),
       columns: { id: true },

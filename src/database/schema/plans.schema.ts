@@ -1,7 +1,7 @@
-import { boolean, integer, numeric, pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { boolean, integer, numeric, pgTable, text, uuid } from 'drizzle-orm/pg-core';
 
 export const plans = pgTable('plans', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull().unique(),
   price: numeric('price', { precision: 10, scale: 2 }).notNull().default('0.00'),
   durationDays: integer('duration_days').notNull(),

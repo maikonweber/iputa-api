@@ -13,7 +13,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ProfilesService {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async create(userId: number, dto: CreateProfileDto) {
+  async create(userId: string, dto: CreateProfileDto) {
     const city = await this.drizzle.db.query.cities.findFirst({
       where: eq(cities.id, dto.cityId),
     });
@@ -48,7 +48,7 @@ export class ProfilesService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const profile = await this.drizzle.db.query.profiles.findFirst({
       where: eq(profiles.id, id),
     });
@@ -60,7 +60,7 @@ export class ProfilesService {
     return profile;
   }
 
-  async update(userId: number, id: number, dto: UpdateProfileDto) {
+  async update(userId: string, id: string, dto: UpdateProfileDto) {
     const existing = await this.drizzle.db.query.profiles.findFirst({
       where: eq(profiles.id, id),
     });
@@ -92,7 +92,7 @@ export class ProfilesService {
     return profile;
   }
 
-  async remove(userId: number, id: number) {
+  async remove(userId: string, id: string) {
     const [profile] = await this.drizzle.db
       .delete(profiles)
       .where(and(eq(profiles.id, id), eq(profiles.userId, userId)))

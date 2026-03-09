@@ -2,18 +2,27 @@ import {
   Controller,
   Delete,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Post,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'node:path';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
 import { PhotosService } from './photos.service';
 
 @ApiTags('photos')
@@ -25,6 +34,21 @@ export class PhotosController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiCreatedResponse({ description: 'Foto enviada com sucesso' })
+  @ApiNotFoundResponse({ description: 'Perfil nao encontrado' })
+  @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -37,8 +61,8 @@ export class PhotosController {
     }),
   )
   upload(
-    @CurrentUser() user: { id: number },
-    @Param('id', ParseIntPipe) profileId: number,
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) profileId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const filePath = `/uploads/${file.filename}`;
@@ -48,9 +72,12 @@ export class PhotosController {
   @Delete('photos/:id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Foto removida com sucesso' })
+  @ApiNotFoundResponse({ description: 'Foto nao encontrada' })
+  @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   remove(
-    @CurrentUser() user: { id: number },
-    @Param('id', ParseIntPipe) photoId: number,
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) photoId: string,
   ) {
     return this.photosService.remove(user.id, photoId);
   }

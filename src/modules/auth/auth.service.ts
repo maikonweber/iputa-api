@@ -38,6 +38,8 @@ export class AuthService {
         createdAt: users.createdAt,
       });
 
+    // Implementa envio de email de verificação
+
     return user;
   }
 

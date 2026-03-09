@@ -1,11 +1,11 @@
-import { boolean, index, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { profiles } from './profiles.schema';
 
 export const photos = pgTable(
   'photos',
   {
-    id: serial('id').primaryKey(),
-    profileId: integer('profile_id')
+    id: uuid('id').primaryKey().defaultRandom(),
+    profileId: uuid('profile_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
     url: text('url').notNull(),

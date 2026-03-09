@@ -1,15 +1,15 @@
-import { boolean, index, integer, pgTable, serial, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { plans } from './plans.schema';
 import { profiles } from './profiles.schema';
 
 export const subscriptions = pgTable(
   'subscriptions',
   {
-    id: serial('id').primaryKey(),
-    profileId: integer('profile_id')
+    id: uuid('id').primaryKey().defaultRandom(),
+    profileId: uuid('profile_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
-    planId: integer('plan_id')
+    planId: uuid('plan_id')
       .notNull()
       .references(() => plans.id, { onDelete: 'restrict' }),
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),

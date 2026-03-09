@@ -1,7 +1,7 @@
-import { pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { pgTable, text, uuid } from 'drizzle-orm/pg-core';
 
 export const cities = pgTable('cities', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
   state: text('state').notNull(),
   slug: text('slug').notNull().unique(),

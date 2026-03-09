@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: iputa
     ports:
-      - '5432:5432'
+      - '5433:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -16,23 +16,23 @@ services:
     image: redis:7-alpine
     container_name: iputa-redis
     ports:
-      - '6379:6379'
+      - '6380:6380'
 
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: iputa-api
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/iputa
-      JWT_SECRET: dev-secret
-      JWT_EXPIRES_IN: 7d
-      PORT: 3000
-    ports:
-      - '3000:3000'
-    depends_on:
-      - postgres
-      - redis
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: iputa-api
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:postgres@postgres:5433/iputa
+  #     JWT_SECRET: dev-secret
+  #     JWT_EXPIRES_IN: 7d
+  #     PORT: 3000
+  #   ports:
+  #     - '3000:3000'
+  #   depends_on:
+  #     - postgres
+  #     - redis
 
 volumes:
   pgdata:

@@ -11,7 +11,7 @@ import { photos, profiles } from '../../database/schema';
 export class PhotosService {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async upload(userId: number, profileId: number, filePath: string) {
+  async upload(userId: string, profileId: string, filePath: string) {
     const profile = await this.drizzle.db.query.profiles.findFirst({
       where: eq(profiles.id, profileId),
     });
@@ -36,7 +36,7 @@ export class PhotosService {
     return photo;
   }
 
-  async remove(userId: number, photoId: number) {
+  async remove(userId: string, photoId: string) {
     const photo = await this.drizzle.db.query.photos.findFirst({
       where: eq(photos.id, photoId),
     });

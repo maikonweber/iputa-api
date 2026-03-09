@@ -9,7 +9,7 @@ import { UpdateMeDto } from './dto/update-me.dto';
 export class UsersService {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async me(userId: number) {
+  async me(userId: string) {
     const user = await this.drizzle.db.query.users.findFirst({
       where: eq(users.id, userId),
     });
@@ -25,7 +25,7 @@ export class UsersService {
     };
   }
 
-  async updateMe(userId: number, dto: UpdateMeDto) {
+  async updateMe(userId: string, dto: UpdateMeDto) {
     const [user] = await this.drizzle.db
       .update(users)
       .set({
