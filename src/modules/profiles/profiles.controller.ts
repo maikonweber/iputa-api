@@ -19,7 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
+import * as Auth from '../auth/current-user.decorator';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -36,7 +36,7 @@ export class ProfilesController {
   @ApiBadRequestResponse({ description: 'Payload invalido para criacao' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   create(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Body() dto: CreateProfileDto,
   ) {
     return this.profilesService.create(user.id, dto);
@@ -63,7 +63,7 @@ export class ProfilesController {
   @ApiNotFoundResponse({ description: 'Perfil nao encontrado' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   update(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateProfileDto,
   ) {
@@ -77,7 +77,7 @@ export class ProfilesController {
   @ApiNotFoundResponse({ description: 'Perfil nao encontrado' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   remove(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.profilesService.remove(user.id, id);

@@ -22,7 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'node:path';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
+import * as Auth from '../auth/current-user.decorator';
 import { PhotosService } from './photos.service';
 
 @ApiTags('photos')
@@ -61,7 +61,7 @@ export class PhotosController {
     }),
   )
   upload(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Param('id', ParseUUIDPipe) profileId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
@@ -76,7 +76,7 @@ export class PhotosController {
   @ApiNotFoundResponse({ description: 'Foto nao encontrada' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   remove(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Param('id', ParseUUIDPipe) photoId: string,
   ) {
     return this.photosService.remove(user.id, photoId);
