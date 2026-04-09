@@ -1,15 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { join } from 'node:path';
-import { mkdirSync } from 'node:fs';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  mkdirSync(join(process.cwd(), 'uploads'), { recursive: true });
-
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -17,9 +12,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads',
-  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Marketplace API MVP')
