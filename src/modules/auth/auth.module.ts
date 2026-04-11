@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { EmailQueueModule } from '../queues/email/email-queue.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
         };
       },
     }),
+    EmailQueueModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtAuthGuard],

@@ -12,6 +12,7 @@ import {
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -29,11 +30,18 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
+  @Get('categories')
+  @ApiOkResponse({ description: 'Categorias de aparencia disponiveis' })
+  getCategories() {
+    return this.profilesService.getCategories();
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiCreatedResponse({ description: 'Perfil criado com sucesso' })
   @ApiBadRequestResponse({ description: 'Payload invalido para criacao' })
+  @ApiConflictResponse({ description: 'Usuario ja possui um perfil' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   create(
     @Auth.CurrentUser() user: Auth.AuthUser,

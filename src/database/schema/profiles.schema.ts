@@ -6,6 +6,7 @@ import {
   text,
   timestamp,
   boolean,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import { cities } from './cities.schema';
@@ -39,14 +40,20 @@ export const profiles = pgTable(
 
     neighborhood: text('neighborhood'),
 
-    // aparência
-    skinColor: text('skin_color'), // branca, negra, morena
-    hairColor: text('hair_color'), // loira, ruiva, preta
-    eyeColor: text('eye_color'), // azul, verde, castanho
-    bodyType: text('body_type'), // magra, fitness, plus
+    // endereço (para mapa)
+    address: text('address'),
+    postalCode: text('postal_code'),
+    latitude: numeric('latitude', { precision: 10, scale: 7 }),
+    longitude: numeric('longitude', { precision: 10, scale: 7 }),
 
-    height: integer('height'), // cm
-    weight: integer('weight'), // kg
+    // aparência
+    skinColor: text('skin_color'),
+    hairColor: text('hair_color'),
+    eyeColor: text('eye_color'),
+    bodyType: text('body_type'),
+
+    height: integer('height'),
+    weight: integer('weight'),
 
     ethnicity: text('ethnicity'),
 
@@ -72,6 +79,8 @@ export const profiles = pgTable(
       .defaultNow(),
   },
   (table) => ({
+    userIdUnique: uniqueIndex('profiles_user_id_unique').on(table.userId),
+
     cityIdx: index('profiles_city_idx').on(table.cityId),
 
     genderIdx: index('profiles_gender_idx').on(table.gender),

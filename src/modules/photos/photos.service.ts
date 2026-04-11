@@ -3,16 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { DrizzleService } from '../../database/drizzle.service';
 import { photos, profiles } from '../../database/schema';
 import { StorageService } from '../../storage/storage.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { WatermarkService } from '../watermark/watermark.service';
 
 @Injectable()
 export class PhotosService {
   constructor(
     private readonly drizzle: DrizzleService,
     private readonly storage: StorageService,
+    private readonly subscriptionsService: SubscriptionsService,
+    private readonly watermarkService: WatermarkService,
   ) {}
 
   async upload(userId: string, profileId: string, file: Express.Multer.File) {
@@ -28,8 +32,25 @@ export class PhotosService {
       throw new ForbiddenException('You cannot upload photo to this profile');
     }
 
+    const limits = await this.subscriptionsService.getActivePlanLimits(profileId);
+
+    if (limits.maxPhotos !== null) {
+      const [{ count }] = await this.drizzle.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(photos)
+        .where(eq(photos.profileId, profileId));
+
+      if (count >= limits.maxPhotos) {
+        throw new ForbiddenException(
+          `Limite de ${limits.maxPhotos} fotos atingido para seu plano`,
+        );
+      }
+    }
+
+    const watermarkedBuffer = await this.watermarkService.apply(file.buffer);
+
     const key = this.storage.buildKey(`photos/${profileId}`, file.originalname);
-    await this.storage.upload(key, file.buffer, file.mimetype);
+    await this.storage.upload(key, watermarkedBuffer, file.mimetype);
 
     const [photo] = await this.drizzle.db
       .insert(photos)
