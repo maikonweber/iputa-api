@@ -8,8 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import type { AuthUser } from '../auth/current-user.decorator';
+import * as Auth from '../auth/current-user.decorator';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { SubscriptionsService } from './subscriptions.service';
 
@@ -25,7 +24,7 @@ export class SubscriptionsController {
   @ApiBadRequestResponse({ description: 'Payload invalido para assinatura' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   create(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Body() dto: CreateSubscriptionDto,
   ) {
     return this.subscriptionsService.create(user.id, dto);
@@ -34,7 +33,7 @@ export class SubscriptionsController {
   @Get('me')
   @ApiOkResponse({ description: 'Assinaturas do usuario autenticado' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
-  mine(@CurrentUser() user: AuthUser) {
+  mine(@Auth.CurrentUser() user: Auth.AuthUser) {
     return this.subscriptionsService.mine(user.id);
   }
 }

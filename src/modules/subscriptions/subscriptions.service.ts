@@ -8,6 +8,14 @@ import { DrizzleService } from '../../database/drizzle.service';
 import { plans, profiles, subscriptions } from '../../database/schema';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 
+const FREE_PLAN_LIMITS = { maxPhotos: 5, maxVideos: 1, maxStories: 0 } as const;
+
+export type PlanLimits = {
+  maxPhotos: number | null;
+  maxVideos: number | null;
+  maxStories: number | null;
+};
+
 @Injectable()
 export class SubscriptionsService {
   constructor(private readonly drizzle: DrizzleService) {}
@@ -75,5 +83,29 @@ export class SubscriptionsService {
           eq(subscriptions.active, true),
         ),
       );
+  }
+
+  async getActivePlanLimits(profileId: string): Promise<PlanLimits> {
+    const result = await this.drizzle.db
+      .select({
+        maxPhotos: plans.maxPhotos,
+        maxVideos: plans.maxVideos,
+        maxStories: plans.maxStories,
+      })
+      .from(subscriptions)
+      .innerJoin(plans, eq(plans.id, subscriptions.planId))
+      .where(
+        and(
+          eq(subscriptions.profileId, profileId),
+          eq(subscriptions.active, true),
+        ),
+      )
+      .limit(1);
+
+    if (result.length === 0) {
+      return { ...FREE_PLAN_LIMITS };
+    }
+
+    return result[0];
   }
 }

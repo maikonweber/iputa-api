@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -19,11 +20,9 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'node:path';
+import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import type { AuthUser } from '../auth/current-user.decorator';
+import * as Auth from '../auth/current-user.decorator';
 import { PhotosService } from './photos.service';
 
 @ApiTags('photos')
@@ -38,36 +37,43 @@ export class PhotosController {
   @ApiBody({
     schema: {
       type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
+      properties: { file: { type: 'string', format: 'binary' } },
       required: ['file'],
     },
   })
   @ApiCreatedResponse({ description: 'Foto enviada com sucesso' })
   @ApiNotFoundResponse({ description: 'Perfil nao encontrado' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: 'uploads',
-        filename: (_req, file, cb) => {
-          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          cb(null, `${unique}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   upload(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Param('id', ParseUUIDPipe) profileId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const filePath = `/uploads/${file.filename}`;
-    return this.photosService.upload(user.id, profileId, filePath);
+    return this.photosService.upload(user.id, profileId, file);
+  }
+
+  @Get('profiles/:id/photos')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Fotos do perfil com URLs assinadas' })
+  @ApiNotFoundResponse({ description: 'Perfil nao encontrado' })
+  @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
+  findByProfile(@Param('id', ParseUUIDPipe) profileId: string) {
+    return this.photosService.findByProfile(profileId);
+  }
+
+  @Get('photos/:id/signed-url')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'URL assinada da foto (expira em 1h)' })
+  @ApiNotFoundResponse({ description: 'Foto nao encontrada' })
+  @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
+  getSignedUrl(
+    @Auth.CurrentUser() user: Auth.AuthUser,
+    @Param('id', ParseUUIDPipe) photoId: string,
+  ) {
+    return this.photosService.getSignedUrl(user.id, photoId);
   }
 
   @Delete('photos/:id')
@@ -77,7 +83,7 @@ export class PhotosController {
   @ApiNotFoundResponse({ description: 'Foto nao encontrada' })
   @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
   remove(
-    @CurrentUser() user: AuthUser,
+    @Auth.CurrentUser() user: Auth.AuthUser,
     @Param('id', ParseUUIDPipe) photoId: string,
   ) {
     return this.photosService.remove(user.id, photoId);

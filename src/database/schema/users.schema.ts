@@ -6,6 +6,9 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   role: text('role').notNull().default('user'),
   emailVerified: boolean('email_verified').notNull().default(false),
+  resetToken: text('reset_token'),
+  resetTokenExpiresAt: timestamp('reset_token_expires_at', { withTimezone: true }),
+  stripeCustomerId: text('stripe_customer_id'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

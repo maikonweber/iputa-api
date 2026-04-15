@@ -1,4 +1,4 @@
-import { boolean, index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { plans } from './plans.schema';
 import { profiles } from './profiles.schema';
 
@@ -15,6 +15,7 @@ export const subscriptions = pgTable(
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),
     endDate: timestamp('end_date', { withTimezone: true }).notNull(),
     active: boolean('active').notNull().default(true),
+    stripeSubscriptionId: text('stripe_subscription_id'),
   },
   (table) => ({
     profileIdx: index('subscriptions_profile_idx').on(table.profileId),

@@ -5,3 +5,5 @@ export * from './cities.schema';
 export * from './plans.schema';
 export * from './subscriptions.schema';
 export * from './reviews.schema';
+export * from './videos.schema';
+export * from './stories.schema';
