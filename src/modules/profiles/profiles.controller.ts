@@ -19,7 +19,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/current-user.decorator';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';

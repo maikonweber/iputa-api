@@ -11,6 +11,7 @@ import { CitiesModule } from './modules/cities/cities.module';
 import { SearchModule } from './modules/search/search.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
     SearchModule,
     PlansModule,
     SubscriptionsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

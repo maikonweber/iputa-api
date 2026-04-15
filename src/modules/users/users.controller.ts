@@ -7,7 +7,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/current-user.decorator';
 import { UsersService } from './users.service';
 import { UpdateMeDto } from './dto/update-me.dto';
 

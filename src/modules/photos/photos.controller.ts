@@ -22,7 +22,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'node:path';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/current-user.decorator';
 import { PhotosService } from './photos.service';
 
 @ApiTags('photos')

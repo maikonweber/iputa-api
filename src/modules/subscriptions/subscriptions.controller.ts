@@ -8,7 +8,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/current-user.decorator';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { SubscriptionsService } from './subscriptions.service';
 
