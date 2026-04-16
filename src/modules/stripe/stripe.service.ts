@@ -93,6 +93,26 @@ export class StripeService {
     return { url: session.url, sessionId: session.id };
   }
 
+  /** User-initiated cancel: keeps access until current period ends; webhook updates DB when Stripe finishes. */
+  async cancelSubscriptionAtPeriodEnd(stripeSubscriptionId: string): Promise<void> {
+    await this.stripe.subscriptions.update(stripeSubscriptionId, {
+      cancel_at_period_end: true,
+    });
+  }
+
+  /** Immediate cancel (e.g. replacing subscription); webhook will sync active=false. */
+  async cancelStripeSubscriptionImmediately(stripeSubscriptionId: string): Promise<void> {
+    try {
+      await this.stripe.subscriptions.cancel(stripeSubscriptionId);
+    } catch (err) {
+      this.logger.warn(
+        `Stripe subscriptions.cancel failed for ${stripeSubscriptionId} (may already be canceled)`,
+        err,
+      );
+      throw err;
+    }
+  }
+
   async handleWebhookEvent(payload: Buffer, signature: string) {
     const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET', '');
 

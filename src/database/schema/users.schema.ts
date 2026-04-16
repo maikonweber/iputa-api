@@ -9,6 +9,8 @@ export const users = pgTable('users', {
   resetToken: text('reset_token'),
   resetTokenExpiresAt: timestamp('reset_token_expires_at', { withTimezone: true }),
   stripeCustomerId: text('stripe_customer_id'),
+  bannedAt: timestamp('banned_at', { withTimezone: true }),
+  bannedReason: text('banned_reason'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

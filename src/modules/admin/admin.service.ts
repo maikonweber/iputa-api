@@ -16,12 +16,17 @@ import {
 import { DrizzleService } from '../../database/drizzle.service';
 import { profiles, users } from '../../database/schema';
 import { ADMIN_ROLE } from '../auth/auth.constants';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { AdminProfilesQueryDto } from './dto/admin-profiles-query.dto';
 import { AdminUsersQueryDto } from './dto/admin-users-query.dto';
+import { GrantSubscriptionDto } from './dto/grant-subscription.dto';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly drizzle: DrizzleService) {}
+  constructor(
+    private readonly drizzle: DrizzleService,
+    private readonly subscriptionsService: SubscriptionsService,
+  ) {}
 
   async listUsers(query: AdminUsersQueryDto) {
     const limit = query.limit ?? 20;
@@ -224,5 +229,13 @@ export class AdminService {
     }
 
     return profile;
+  }
+
+  grantSubscription(dto: GrantSubscriptionDto) {
+    return this.subscriptionsService.grantByAdmin(
+      dto.profile_id,
+      dto.plan_id,
+      dto.user_id,
+    );
   }
 }

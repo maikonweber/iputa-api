@@ -23,7 +23,6 @@ import { AdminService } from './admin.service';
 import { AdminProfilesQueryDto } from './dto/admin-profiles-query.dto';
 import { AdminUsersQueryDto } from './dto/admin-users-query.dto';
 import { BanUserDto } from './dto/ban-user.dto';
-
 @ApiTags('admin')
 @ApiBearerAuth()
 @ApiUnauthorizedResponse({ description: 'Token ausente ou invalido' })
