@@ -1,4 +1,8 @@
 version: '3.9'
+# If POSTGRES_PASSWORD was changed after the volume was first created, PostgreSQL
+# keeps the old password until you run (from this directory):
+#   npm run db:sync-postgres-password
+# or reset the volume (data loss): docker-compose down -v && docker-compose up -d
 services:
   postgres:
     image: postgres:16-alpine
@@ -9,7 +13,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: iputa
     ports:
-      - '5433:5432'
+      - 127.0.0.1:5433:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

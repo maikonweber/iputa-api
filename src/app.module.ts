@@ -18,6 +18,7 @@ import { QueuesModule } from './modules/queues/queues.module';
 import { MailModule } from './modules/mail/mail.module';
 import { StripeModule } from './modules/stripe/stripe.module';
 import { WatermarkModule } from './modules/watermark/watermark.module';
+import { FaceVerificationModule } from './modules/face-verification/face-verification.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { WatermarkModule } from './modules/watermark/watermark.module';
     StoriesModule,
     StripeModule,
     WatermarkModule,
+    FaceVerificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

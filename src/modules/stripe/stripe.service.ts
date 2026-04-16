@@ -1,9 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { eq } from 'drizzle-orm';
 import { DrizzleService } from '../../database/drizzle.service';
 import { plans, subscriptions, users } from '../../database/schema';
+import type { Plan } from '../../database/schema';
 
 @Injectable()
 export class StripeService {
@@ -14,9 +21,22 @@ export class StripeService {
     private readonly configService: ConfigService,
     private readonly drizzle: DrizzleService,
   ) {
-    this.stripe = new Stripe(
-      this.configService.get<string>('STRIPE_SECRET_KEY', ''),
-    );
+    const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY', '');
+    if (secretKey.startsWith('pk_')) {
+      this.logger.warn(
+        'STRIPE_SECRET_KEY starts with pk_: use the secret key (sk_...) from Stripe Dashboard, not the publishable key.',
+      );
+    }
+    this.stripe = new Stripe(secretKey);
+  }
+
+  /** Price ID from DB column or STRIPE_PRICE_<PLAN_NAME> in .env (e.g. STRIPE_PRICE_PREMIUM). */
+  private resolveStripePriceId(plan: Plan): string | null {
+    const fromDb = plan.stripePriceId?.trim();
+    if (fromDb) return fromDb;
+    const envKey = `STRIPE_PRICE_${plan.name.toUpperCase()}`;
+    const fromEnv = this.configService.get<string>(envKey, '')?.trim();
+    return fromEnv || null;
   }
 
   async createCheckoutSession(userId: string, profileId: string, planId: string) {
@@ -24,8 +44,20 @@ export class StripeService {
       where: eq(plans.id, planId),
     });
 
-    if (!plan || !plan.stripePriceId) {
-      throw new Error('Plan not found or Stripe price not configured');
+    if (!plan) {
+      throw new NotFoundException('Plano não encontrado');
+    }
+
+    if (plan.name === 'free') {
+      throw new BadRequestException('O plano gratuito não requer checkout');
+    }
+
+    const stripePriceId = this.resolveStripePriceId(plan);
+    if (!stripePriceId) {
+      throw new UnprocessableEntityException(
+        `Price ID do Stripe não configurado para o plano "${plan.name}". ` +
+          `Preencha stripe_price_id na tabela plans ou defina ${`STRIPE_PRICE_${plan.name.toUpperCase()}`} no .env.`,
+      );
     }
 
     const user = await this.drizzle.db.query.users.findFirst({
@@ -52,7 +84,7 @@ export class StripeService {
     const session = await this.stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
-      line_items: [{ price: plan.stripePriceId, quantity: 1 }],
+      line_items: [{ price: stripePriceId, quantity: 1 }],
       metadata: { profileId, planId, userId },
       success_url: `${appUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/subscription/cancel`,

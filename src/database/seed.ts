@@ -42,12 +42,33 @@ async function seed() {
     ])
     .returning({ id: cities.id, slug: cities.slug });
 
+  const stripePremium = process.env.STRIPE_PRICE_PREMIUM?.trim() || null;
+  const stripeTop = process.env.STRIPE_PRICE_TOP?.trim() || null;
+
   const insertedPlans = await db
     .insert(plans)
     .values([
       { name: 'free', price: '0.00', durationDays: 30, highlight: false, maxPhotos: 5, maxVideos: 1, maxStories: 0 },
-      { name: 'premium', price: '49.90', durationDays: 30, highlight: true, maxPhotos: 20, maxVideos: 10, maxStories: 2 },
-      { name: 'top', price: '89.90', durationDays: 30, highlight: true, maxPhotos: null, maxVideos: null, maxStories: null },
+      {
+        name: 'premium',
+        price: '49.90',
+        durationDays: 30,
+        highlight: true,
+        maxPhotos: 20,
+        maxVideos: 10,
+        maxStories: 2,
+        stripePriceId: stripePremium,
+      },
+      {
+        name: 'top',
+        price: '89.90',
+        durationDays: 30,
+        highlight: true,
+        maxPhotos: null,
+        maxVideos: null,
+        maxStories: null,
+        stripePriceId: stripeTop,
+      },
     ])
     .returning({ id: plans.id, name: plans.name });
 
